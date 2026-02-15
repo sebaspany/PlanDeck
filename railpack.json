@@ -1,0 +1,23 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "steps": {
+    "install-client": {
+      "commands": ["cd client && npm install"]
+    },
+    "build-client": {
+      "inputs": [{"step": "install-client"}],
+      "commands": ["cd client && npm run build"]
+    },
+    "install-server": {
+      "inputs": [{"step": "build-client"}],
+      "commands": ["cd server && npm install && npx prisma generate"]
+    },
+    "build-server": {
+      "inputs": [{"step": "install-server"}],
+      "commands": ["cd server && npx prisma db push && npm run build"]
+    }
+  },
+  "deploy": {
+    "startCommand": "cd server && node dist/index.js"
+  }
+}
