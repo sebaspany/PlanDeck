@@ -8,7 +8,7 @@ Lightning-fast, zero-auth Planning Poker for agile teams. Create a session, shar
 - **Backend:** Node.js + Express + Socket.io + Prisma ORM
 - **Database:** MySQL
 
-## Quick Start
+## Quick Start (Local)
 
 ### 1. Clone & Install
 
@@ -25,10 +25,16 @@ cd ../client && npm install
 
 ### 2. Set Up Database
 
+Create a MySQL database:
+
+```sql
+CREATE DATABASE plandeck;
+```
+
 Create a `.env` file in `server/`:
 
 ```env
-DATABASE_URL="mysql://user:password@localhost:3306/plandeck"
+DATABASE_URL="mysql://root:yourpassword@localhost:3306/plandeck"
 ```
 
 Push the schema:
@@ -50,29 +56,51 @@ cd client && npm run dev
 
 Open `http://localhost:5173`
 
-## Deploy to Vercel + Railway/PlanetScale
+## Deploy (Single Server)
 
-### Frontend (Vercel)
+The backend serves the frontend build in production, so you only need **one server** and a MySQL database.
 
-1. Import the repo on [vercel.com](https://vercel.com)
-2. Set **Root Directory** to `client`
-3. Set **Build Command** to `npm run build`
-4. Set **Output Directory** to `dist`
-5. Add environment variable:
-   - `VITE_API_URL` = your backend URL (e.g. `https://plandeck-api.up.railway.app`)
+### Option A: Railway (Easiest)
 
-### Backend (Railway / Render / Fly.io)
+1. Sign up at [railway.app](https://railway.app) (free tier available)
+2. Create a new project → **Deploy from GitHub repo**
+3. Add a **MySQL** service in the same project
+4. Set environment variables on the server service:
+   - `DATABASE_URL` = the MySQL connection string from Railway (auto-provided if you link the services)
+   - `PORT` = `3001`
+5. Set **Root Directory** to `/` (project root)
+6. Set **Build Command** to:
+   ```
+   cd client && npm install && npm run build && cd ../server && npm install && npx prisma generate && npx prisma db push && npm run build
+   ```
+7. Set **Start Command** to:
+   ```
+   cd server && node dist/index.js
+   ```
 
-1. Deploy the `server` directory
-2. Set environment variables:
-   - `DATABASE_URL` = your MySQL connection string (PlanetScale, Aiven, etc.)
-   - `PORT` = `3001` (or let the platform assign one)
-3. Run `npx prisma db push` as part of the build
+### Option B: Render
 
-### Database (PlanetScale / Aiven)
+1. Sign up at [render.com](https://render.com) (free tier available)
+2. Create a **Web Service** → connect your GitHub repo
+3. Create a **MySQL database** (or use a free one from [Aiven](https://aiven.io) or [PlanetScale](https://planetscale.com))
+4. Set environment variables:
+   - `DATABASE_URL` = your MySQL connection string
+   - `PORT` = `3001`
+5. Set **Build Command** to:
+   ```
+   cd client && npm install && npm run build && cd ../server && npm install && npx prisma generate && npx prisma db push && npm run build
+   ```
+6. Set **Start Command** to:
+   ```
+   cd server && node dist/index.js
+   ```
 
-1. Create a MySQL database
-2. Copy the connection string to `DATABASE_URL`
+### Option C: Split Deploy (Vercel + Railway)
+
+If you prefer hosting the frontend on Vercel separately:
+
+1. **Frontend (Vercel):** Import repo, set Root Directory to `client`, add env var `VITE_API_URL` = your backend URL
+2. **Backend (Railway/Render):** Deploy `server/` with `DATABASE_URL` and `PORT` env vars
 
 ## Environment Variables
 
@@ -80,7 +108,7 @@ Open `http://localhost:5173`
 |----------|----------|-------------|
 | `DATABASE_URL` | `server/.env` | MySQL connection string |
 | `PORT` | `server/.env` | Server port (default: 3001) |
-| `VITE_API_URL` | `client/.env` | Backend URL for production |
+| `VITE_API_URL` | `client/.env` | Backend URL (only needed for split deploy) |
 
 ## How It Works
 

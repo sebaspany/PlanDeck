@@ -3,7 +3,8 @@ import { useParams } from "react-router-dom";
 import { io, Socket } from "socket.io-client";
 import { QRCodeSVG } from "qrcode.react";
 
-const FIBONACCI = ["1", "2", "3", "5", "8", "13", "21", "?"];
+const API_URL = import.meta.env.VITE_API_URL || "";
+const FIBONACCI= ["1", "2", "3", "5", "8", "13", "21", "?"];
 
 interface Vote {
   id: number;
@@ -45,7 +46,7 @@ export default function Room() {
 
   const joinRoom = () => {
     const name = nameInput.trim() || defaultName;
-    const s = io({ transports: ["websocket", "polling"] });
+    const s = io(API_URL || undefined, { transports: ["websocket", "polling"] });
     socketRef.current = s;
     setSocket(s);
 

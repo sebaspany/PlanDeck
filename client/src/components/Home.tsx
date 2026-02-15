@@ -2,13 +2,15 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 
+const API_URL = import.meta.env.VITE_API_URL || "";
+
 export default function Home() {
   const navigate = useNavigate();
   const [room, setRoom] = useState<{ code: string } | null>(null);
   const [copied, setCopied] = useState(false);
 
   const createRoom = async () => {
-    const res = await fetch("/api/rooms", { method: "POST" });
+    const res = await fetch(`${API_URL}/api/rooms`, { method: "POST" });
     const data = await res.json();
     setRoom(data);
   };
